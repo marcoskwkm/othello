@@ -1,9 +1,11 @@
 import React from 'react'
 
+import Game from './components/Game'
+
 const App: React.FC = () => {
   return (
-    <div className="border m-8 p-8 border-red-400 rounded-md text-center">
-      Hello, world!
+    <div className="m-8 flex justify-center">
+      <Game />
     </div>
   )
 }
