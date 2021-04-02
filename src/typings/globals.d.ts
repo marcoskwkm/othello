@@ -21,3 +21,7 @@ type BoardState = [
   BoardRowState,
   BoardRowState
 ]
+
+type Strategy =
+  | null
+  | ((state: BoardState, turn: 'black' | 'white') => [number, number])

@@ -89,14 +89,20 @@ export const isLegalMove = (
   }
 }
 
-export const countLegalMoves = (state: BoardState, turn: 'black' | 'white') => {
-  let count = 0
+export const listLegalMoves = (
+  state: BoardState,
+  turn: 'black' | 'white'
+): [number, number][] => {
+  const legalMoves: [number, number][] = []
   for (let row = 0; row < 8; row++) {
     for (let col = 0; col < 8; col++) {
       if (isLegalMove(state, turn, row, col)) {
-        count += 1
+        legalMoves.push([row, col])
       }
     }
   }
-  return count
+  return legalMoves
 }
+
+export const countLegalMoves = (state: BoardState, turn: 'black' | 'white') =>
+  listLegalMoves(state, turn).length

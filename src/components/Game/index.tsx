@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+
 import {
   countLegalMoves,
   getInitialState,
@@ -6,26 +7,61 @@ import {
   performMove,
 } from '../../utils'
 import { InvalidMoveError } from '../../utils/errors'
+import {
+  checkGameOver,
+  countPieces,
+  evaluatePosition,
+  minMaxPositionScore,
+} from '../../utils/strategies'
 
 import Board from '../Board'
 
+const BLACK_STRATEGY: Strategy = null
+const WHITE_STRATEGY: Strategy = minMaxPositionScore
+
+const removePreTurn = (turn: 'black' | 'white' | 'pre-black' | 'pre-white') =>
+  turn === 'pre-black' ? 'black' : turn === 'pre-white' ? 'white' : turn
+
 const Game: React.FC = () => {
-  const [turn, setTurn] = useState<'black' | 'white'>('black')
+  const [turn, setTurn] = useState<
+    'black' | 'white' | 'pre-black' | 'pre-white'
+  >('black')
   const [boardState, setBoardState] = useState<BoardState>(() =>
     getInitialState()
   )
   const [error, setError] = useState<string | null>(null)
 
-  const handleClick = (row: number, col: number) => {
-    setError(null)
-    try {
+  const makeMove = useCallback(
+    (row: number, col: number) => {
+      if (turn !== 'black' && turn !== 'white') {
+        return
+      }
       const nextState = performMove(boardState, turn, row, col)
       setBoardState(nextState)
-      setTurn((curTurn) =>
-        countLegalMoves(nextState, opposite(curTurn)) > 0
-          ? opposite(curTurn)
-          : curTurn
-      )
+
+      const nextTurn =
+        countLegalMoves(nextState, opposite(turn)) > 0 ? opposite(turn) : turn
+      if (nextTurn === 'white' && WHITE_STRATEGY !== null) {
+        setTurn('pre-white')
+      } else if (nextTurn === 'black' && BLACK_STRATEGY !== null) {
+        setTurn('pre-black')
+      } else {
+        setTurn(nextTurn)
+      }
+    },
+    [boardState, turn]
+  )
+
+  const handleClick = (row: number, col: number) => {
+    if (
+      (turn === 'white' && WHITE_STRATEGY !== null) ||
+      (turn === 'black' && BLACK_STRATEGY !== null)
+    ) {
+      return
+    }
+    setError(null)
+    try {
+      makeMove(row, col)
     } catch (err) {
       if (err instanceof InvalidMoveError) {
         setError('Invalid move')
@@ -35,26 +71,47 @@ const Game: React.FC = () => {
     }
   }
 
-  const legalMovesCount = useMemo(() => countLegalMoves(boardState, turn), [
+  const legalMovesCount = useMemo(
+    () => countLegalMoves(boardState, removePreTurn(turn)),
+    [boardState, turn]
+  )
+
+  const isGameOver = useMemo(() => checkGameOver(boardState), [boardState])
+
+  const blackPieceCount = useMemo(() => countPieces(boardState, 'black'), [
     boardState,
-    turn,
+  ])
+  const whitePieceCount = useMemo(() => countPieces(boardState, 'white'), [
+    boardState,
   ])
 
-  const isGameOver = useMemo(
-    () =>
-      countLegalMoves(boardState, 'black') === 0 &&
-      countLegalMoves(boardState, 'white') === 0,
-    [boardState]
-  )
+  const positionEval = useMemo(() => evaluatePosition(boardState), [boardState])
 
-  const blackPieceCount = useMemo(
-    () => boardState.flat().filter((cell) => cell === 'black').length,
-    [boardState]
-  )
-  const whitePieceCount = useMemo(
-    () => boardState.flat().filter((cell) => cell === 'white').length,
-    [boardState]
-  )
+  useEffect(() => {
+    if (isGameOver) {
+      return
+    }
+    if (turn === 'white' && WHITE_STRATEGY !== null) {
+      // @ts-ignore
+      const [row, col] = WHITE_STRATEGY(boardState, turn)
+      makeMove(row, col)
+    } else if (turn === 'black' && BLACK_STRATEGY !== null) {
+      // @ts-ignore
+      const [row, col] = BLACK_STRATEGY(boardState, turn)
+      makeMove(row, col)
+    }
+  }, [isGameOver, boardState, turn, makeMove])
+
+  useEffect(() => {
+    if (isGameOver) {
+      return
+    }
+    if (turn === 'pre-white') {
+      setTimeout(() => setTurn('white'), 500)
+    } else if (turn === 'pre-black') {
+      setTimeout(() => setTurn('black'), 500)
+    }
+  }, [isGameOver, turn])
 
   const handleReset = () => {
     setTurn('black')
@@ -70,7 +127,11 @@ const Game: React.FC = () => {
       </div>
       <div className="mt-4 flex justify-around">
         <span>
-          Next turn: {turn} ({legalMovesCount} legal moves)
+          Next turn: {removePreTurn(turn)} ({legalMovesCount} legal moves)
+        </span>
+        <span>
+          Eval: {positionEval > 0 ? '+' : ''}
+          {positionEval}
         </span>
         <button
           className="px-2 border rounded-md bg-gray-200 hover:bg-gray-300"
