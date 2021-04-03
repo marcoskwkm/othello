@@ -27,7 +27,8 @@
     "start": "craco start",
     "build": "craco build",
     "test": "craco test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "buildwasm": "em++ cpp/strategy.cpp -o public/strategy.js -s EXPORTED_FUNCTIONS='[\"_computeNextMove\"]' -s EXPORTED_RUNTIME_METHODS='[\"ccall\"]'"
   },
   "eslintConfig": {
     "extends": [

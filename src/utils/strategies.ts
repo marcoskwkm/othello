@@ -135,56 +135,16 @@ export const minMaxPositionScore: Strategy = (
   state: BoardState,
   turn: 'black' | 'white'
 ) => {
-  let [bestRow, bestCol] = [-1, -1]
-
-  const MAX_DEPTH = 4
-
-  const rec = (
-    curState: BoardState,
-    curTurn: 'black' | 'white' = turn,
-    depth: number = 0
-  ): number => {
-    let bestValue = curTurn === 'black' ? Infinity : -Infinity
-
-    let foundMove = false
-    for (let row = 0; row < 8; row++) {
-      for (let col = 0; col < 8; col++) {
-        try {
-          const nextState = performMove(curState, curTurn, row, col)
-
-          const value =
-            depth === MAX_DEPTH || checkGameOver(nextState)
-              ? evaluatePosition(nextState)
-              : rec(nextState, opposite(curTurn), depth + 1)
-
-          foundMove = true
-
-          if (
-            (curTurn === 'black' && value < bestValue) ||
-            (curTurn === 'white' && value > bestValue)
-          ) {
-            bestValue = value
-            if (depth === 0) {
-              bestRow = row
-              bestCol = col
-            }
-          }
-        } catch (err) {
-          if (!(err instanceof InvalidMoveError)) {
-            console.error(err)
-          }
-        }
-      }
-    }
-
-    if (!foundMove) {
-      return rec(curState, opposite(curTurn), depth)
-    }
-
-    return bestValue
-  }
-
-  rec(state)
-
-  return [bestRow, bestCol]
+  const encodedState = state
+    .flat()
+    .map((cell) => (cell === 'black' ? 'b' : cell === 'white' ? 'w' : 'e'))
+    .join('')
+  const encodedMove: string = (window as any).Module.ccall(
+    'computeNextMove',
+    'string',
+    ['string', 'number'],
+    [encodedState, turn === 'black' ? 0 : 1]
+  )
+  const [row, col] = encodedMove.split(' ').map((val) => parseInt(val))
+  return [row, col]
 }
