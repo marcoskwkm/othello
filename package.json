@@ -29,7 +29,7 @@
     "build": "craco build",
     "test": "craco test",
     "eject": "react-scripts eject",
-    "buildwasm": "em++ cpp/strategy.cpp -o public/strategy.js -s EXPORTED_FUNCTIONS='[\"_computeNextMove\"]' -s EXPORTED_RUNTIME_METHODS='[\"ccall\"]'",
+    "buildwasm": "em++ cpp/strategy.cpp -O3 -o public/strategy.js -s EXPORTED_FUNCTIONS='[\"_computeNextMove\"]' -s EXPORTED_RUNTIME_METHODS='[\"ccall\"]'",
     "predeploy": "yarn buildwasm && yarn build",
     "deploy": "gh-pages -d build"
   },
