@@ -16,9 +16,6 @@ import {
 
 import Board from '../Board'
 
-const BLACK_STRATEGY: Strategy = null
-const WHITE_STRATEGY: Strategy = minMaxPositionScore
-
 const removePreTurn = (turn: 'black' | 'white' | 'pre-black' | 'pre-white') =>
   turn === 'pre-black' ? 'black' : turn === 'pre-white' ? 'white' : turn
 
@@ -28,6 +25,10 @@ const Game: React.FC = () => {
   >('black')
   const [boardState, setBoardState] = useState<BoardState>(() =>
     getInitialState()
+  )
+  const [blackStrategy, setBlackStrategy] = useState<Strategy | null>(null)
+  const [whiteStrategy, setWhiteStrategy] = useState<Strategy | null>(
+    () => minMaxPositionScore
   )
   const [error, setError] = useState<string | null>(null)
 
@@ -41,21 +42,21 @@ const Game: React.FC = () => {
 
       const nextTurn =
         countLegalMoves(nextState, opposite(turn)) > 0 ? opposite(turn) : turn
-      if (nextTurn === 'white' && WHITE_STRATEGY !== null) {
+      if (nextTurn === 'white' && whiteStrategy !== null) {
         setTurn('pre-white')
-      } else if (nextTurn === 'black' && BLACK_STRATEGY !== null) {
+      } else if (nextTurn === 'black' && blackStrategy !== null) {
         setTurn('pre-black')
       } else {
         setTurn(nextTurn)
       }
     },
-    [boardState, turn]
+    [boardState, turn, blackStrategy, whiteStrategy]
   )
 
   const handleClick = (row: number, col: number) => {
     if (
-      (turn === 'white' && WHITE_STRATEGY !== null) ||
-      (turn === 'black' && BLACK_STRATEGY !== null)
+      (turn === 'white' && whiteStrategy !== null) ||
+      (turn === 'black' && blackStrategy !== null)
     ) {
       return
     }
@@ -91,16 +92,14 @@ const Game: React.FC = () => {
     if (isGameOver) {
       return
     }
-    if (turn === 'white' && WHITE_STRATEGY !== null) {
-      // @ts-ignore
-      const [row, col] = WHITE_STRATEGY(boardState, turn)
+    if (turn === 'white' && whiteStrategy !== null) {
+      const [row, col] = whiteStrategy(boardState, turn)
       makeMove(row, col)
-    } else if (turn === 'black' && BLACK_STRATEGY !== null) {
-      // @ts-ignore
-      const [row, col] = BLACK_STRATEGY(boardState, turn)
+    } else if (turn === 'black' && blackStrategy !== null) {
+      const [row, col] = blackStrategy(boardState, turn)
       makeMove(row, col)
     }
-  }, [isGameOver, boardState, turn, makeMove])
+  }, [isGameOver, boardState, turn, makeMove, blackStrategy, whiteStrategy])
 
   useEffect(() => {
     if (isGameOver) {
@@ -124,6 +123,54 @@ const Game: React.FC = () => {
       <div className="text-2xl text-center">Othello bot</div>
       <div className="text-right text-sm">
         Because the AI from Nintendo's Clubhouse 51 is too stronk
+      </div>
+      <div className="grid grid-cols-max-3">
+        <span>Black:</span>
+        <label className="flex items-center cursor-pointer">
+          <input
+            className="ml-2 mr-1"
+            type="radio"
+            value="human"
+            checked={blackStrategy === null}
+            onClick={() => setBlackStrategy(null)}
+            readOnly
+          />
+          Human
+        </label>
+        <label className="flex items-center cursor-pointer">
+          <input
+            className="ml-2 mr-1"
+            type="radio"
+            value="cpu"
+            checked={blackStrategy !== null}
+            onClick={() => setBlackStrategy(() => minMaxPositionScore)}
+            readOnly
+          />
+          CPU
+        </label>
+        <span>White:</span>
+        <label className="flex items-center cursor-pointer">
+          <input
+            className="ml-2 mr-1"
+            type="radio"
+            value="human"
+            checked={whiteStrategy === null}
+            onClick={() => setWhiteStrategy(null)}
+            readOnly
+          />
+          Human
+        </label>
+        <label className="flex items-center cursor-pointer">
+          <input
+            className="ml-2 mr-1"
+            type="radio"
+            value="cpu"
+            checked={whiteStrategy !== null}
+            onClick={() => setWhiteStrategy(() => minMaxPositionScore)}
+            readOnly
+          />
+          CPU
+        </label>
       </div>
       <div className="mt-4 flex justify-around">
         <span>

@@ -8,6 +8,7 @@ module.exports = {
       },
       gridTemplateColumns: {
         board: 'repeat(8, 1fr)',
+        'max-3': 'repeat(3, max-content)',
       },
       padding: {
         full: '100%',
