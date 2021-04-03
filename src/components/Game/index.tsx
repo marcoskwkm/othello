@@ -26,6 +26,7 @@ const Game: React.FC = () => {
   const [boardState, setBoardState] = useState<BoardState>(() =>
     getInitialState()
   )
+  const [lastMove, setLastMove] = useState<[number, number]>([-1, -1])
   const [blackStrategy, setBlackStrategy] = useState<Strategy | null>(null)
   const [whiteStrategy, setWhiteStrategy] = useState<Strategy | null>(
     () => minMaxPositionScore
@@ -49,6 +50,8 @@ const Game: React.FC = () => {
       } else {
         setTurn(nextTurn)
       }
+
+      setLastMove([row, col])
     },
     [boardState, turn, blackStrategy, whiteStrategy]
   )
@@ -187,7 +190,11 @@ const Game: React.FC = () => {
           Reset
         </button>
       </div>
-      <Board boardState={boardState} onClick={handleClick} />
+      <Board
+        boardState={boardState}
+        onClick={handleClick}
+        lastMove={lastMove}
+      />
       <div className="flex justify-around">
         <span>White: {whitePieceCount}</span>
         <span>Black: {blackPieceCount}</span>

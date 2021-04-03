@@ -6,6 +6,7 @@ import Cell from '../Cell'
 interface Props {
   className?: string
   boardState: BoardState
+  lastMove: [number, number]
   onClick?: (row: number, col: number) => void
 }
 
@@ -22,6 +23,9 @@ const Board: React.FC<Props> = (props) => {
           <Cell
             key={8 * rowIdx + colIdx}
             state={props.boardState[rowIdx][colIdx]}
+            highlighted={
+              rowIdx === props.lastMove[0] && colIdx === props.lastMove[1]
+            }
             onClick={() => props.onClick?.(rowIdx, colIdx)}
           />
         ))
