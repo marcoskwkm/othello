@@ -209,7 +209,7 @@ int evaluatePosition(Board state) {
 }
 
 tuple<int, int, int> minMaxRecursion(Board state, Color turn, int depth) {
-    static const int MAX_DEPTH = 4;
+    static const int MAX_DEPTH = 5;
 
     int best_value = (turn == BLACK ? INF : -INF);
     int best_row = -1, best_col = -1;
@@ -238,6 +238,10 @@ tuple<int, int, int> minMaxRecursion(Board state, Color turn, int depth) {
                 best_col = col;
             }
         }
+    }
+
+    if (!found_move) {
+        return minMaxRecursion(state, opposite(turn), depth);
     }
 
     return make_tuple(best_value, best_row, best_col);
