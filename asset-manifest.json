@@ -1,0 +1,20 @@
+{
+  "files": {
+    "main.css": "/othello/static/css/main.f6e03a06.chunk.css",
+    "main.js": "/othello/static/js/main.0ea4d6b6.chunk.js",
+    "main.js.map": "/othello/static/js/main.0ea4d6b6.chunk.js.map",
+    "runtime-main.js": "/othello/static/js/runtime-main.f7940055.js",
+    "runtime-main.js.map": "/othello/static/js/runtime-main.f7940055.js.map",
+    "static/js/2.6537f177.chunk.js": "/othello/static/js/2.6537f177.chunk.js",
+    "static/js/2.6537f177.chunk.js.map": "/othello/static/js/2.6537f177.chunk.js.map",
+    "index.html": "/othello/index.html",
+    "static/css/main.f6e03a06.chunk.css.map": "/othello/static/css/main.f6e03a06.chunk.css.map",
+    "static/js/2.6537f177.chunk.js.LICENSE.txt": "/othello/static/js/2.6537f177.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.f7940055.js",
+    "static/js/2.6537f177.chunk.js",
+    "static/css/main.f6e03a06.chunk.css",
+    "static/js/main.0ea4d6b6.chunk.js"
+  ]
+}
