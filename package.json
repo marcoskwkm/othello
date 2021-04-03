@@ -2,6 +2,7 @@
   "name": "sandbox",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://marcoskwkm.github.io/othello",
   "dependencies": {
     "@craco/craco": "^6.1.1",
     "@tailwindcss/postcss7-compat": "^2.0.3",
@@ -28,7 +29,9 @@
     "build": "craco build",
     "test": "craco test",
     "eject": "react-scripts eject",
-    "buildwasm": "em++ cpp/strategy.cpp -o public/strategy.js -s EXPORTED_FUNCTIONS='[\"_computeNextMove\"]' -s EXPORTED_RUNTIME_METHODS='[\"ccall\"]'"
+    "buildwasm": "em++ cpp/strategy.cpp -o public/strategy.js -s EXPORTED_FUNCTIONS='[\"_computeNextMove\"]' -s EXPORTED_RUNTIME_METHODS='[\"ccall\"]'",
+    "predeploy": "yarn buildwasm && yarn build",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
@@ -50,6 +53,7 @@
   },
   "devDependencies": {
     "@types/ramda": "^0.27.39",
+    "gh-pages": "^3.1.0",
     "prettier": "^2.2.1"
   }
 }
